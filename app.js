@@ -16,6 +16,7 @@ const limiter=rateLimit({
 });
 app.use("/api",limiter);
 app.use(helmet());
+app.use(bodyParser.urlencoded({extended:true}));
 
 app.use(express.static('public'));
 app.use(express.json());
@@ -33,12 +34,7 @@ if(process.env.NODE_ENV==='development'){  // development login
         //console.log(req.headers);// this is to check the headers
         next();
     })
-        
-const port = 7000;
-app.listen(port,()=>{
-    console.log(`Server is running on port ${port}`);
-});
-// how to use websocket in nodejs?
+   
 
 module.exports=app;
 
