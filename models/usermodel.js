@@ -18,6 +18,14 @@ const userSchema=new mongoose.Schema({
         lowercase:true,
         validate:[validator.isEmail,'Please provide a valid email']
     },
+    rollNo:{
+        type:String,
+        required:[true,'A user must have a roll number'],
+        unique:true,
+        trim:true,
+        maxlength:[9,'A user roll number must have equal to 9 characters'],
+        minlength:[9,'A user roll number must have equal to 9 characters']
+    },
     role:{
         //required:[true,'A user must have a role'],
         type:String,

@@ -7,6 +7,7 @@ const helmet=require("helmet");
 const mongoSanitize=require("express-mongo-sanitize");
 const xss=require("xss-clean"); 
 const hpp=require("hpp");
+//const userRouter=require("./routes/userRoutes");
 
 //var http = require('http');
 const limiter=rateLimit({
@@ -34,7 +35,18 @@ if(process.env.NODE_ENV==='development'){  // development login
         //console.log(req.headers);// this is to check the headers
         next();
     })
-   
+    app.get('/',(req,res)=>{
+        res.send("Hello World");
+    });
+    //app.use("/api/users",userRouter);
+    app.all("*",(req,res,next)=>{
+        next(new AppError(`Invalid endpoint`));
+        // const err=new Error(`Invalid endpoint`);
+        // err.status='fail';
+        // err.statusCode=404;
+        // next(err);
+    
+    });
 
 module.exports=app;
 
