@@ -1,5 +1,4 @@
 const express = require('express');
-const app = express();
 const bodyParser=require("body-parser");
 const rateLimit=require("express-rate-limit");
 const morgan=require("morgan");
@@ -7,6 +6,10 @@ const helmet=require("helmet");
 const mongoSanitize=require("express-mongo-sanitize");
 const xss=require("xss-clean"); 
 const hpp=require("hpp");
+const userRouter=require('./routes//userRoutes');
+const subjectRouter=require('./routes///subRoutes');
+const AppError=require('./utils//appError');
+const app = express();
 //const userRouter=require("./routes/userRoutes");
 
 //var http = require('http');
@@ -38,14 +41,10 @@ if(process.env.NODE_ENV==='development'){  // development login
     app.get('/',(req,res)=>{
         res.send("Hello World");
     });
-    //app.use("/api/users",userRouter);
+    app.use("/api/users",userRouter);
+    app.use("/api/subjects",subjectRouter);
     app.all("*",(req,res,next)=>{
         next(new AppError(`Invalid endpoint`));
-        // const err=new Error(`Invalid endpoint`);
-        // err.status='fail';
-        // err.statusCode=404;
-        // next(err);
-    
     });
 
 module.exports=app;
