@@ -13,12 +13,12 @@ const app = express();
 //const userRouter=require("./routes/userRoutes");
 
 //var http = require('http');
-const limiter=rateLimit({
-    max:100,
-    windowMs:60*60*1000,
-    message:"Too many requests from this IP,please try again in an hour"
-});
-app.use("/api",limiter);
+// const limiter=rateLimit({
+//     max:100,
+//     windowMs:60*60*1000,
+//     message:"Too many requests from this IP,please try again in an hour"
+// });
+//app.use("/api",limiter);
 app.use(helmet());
 app.use(bodyParser.urlencoded({extended:true}));
 

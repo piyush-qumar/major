@@ -31,7 +31,7 @@ const userSchema=new mongoose.Schema({
         type:String,
         //trim:true,
         enum:['student','teacher','idcrt','admin','squad'],
-        default:'user'
+        default:'student'
     },
     password:{
         type:String,
@@ -58,20 +58,20 @@ const userSchema=new mongoose.Schema({
     //     select:false
     // }
 });
-userSchema.pre('save',async function(next){
-    //Only run this function if password was actually modified
-    if(!this.isModified('password')) return next();
-    //Hash the password with cost of 12
-    this.password=await bcrypt.hash(this.password,12);
-    //Delete passwordConfirm field
-    //this.passwordConfirm=undefined;
-    next();
-});
-userSchema.pre('save',function(next){
-    if(!this.isModified('password')||this.isNew) return next();
-    this.passwordChangedAt=Date.now()-1000;
-    next();
-});
+// userSchema.pre('save',async function(next){
+//     //Only run this function if password was actually modified
+//     if(!this.isModified('password')) return next();
+//     //Hash the password with cost of 12
+//     this.password=await bcrypt.hash(this.password,12);
+//     //Delete passwordConfirm field
+//     //this.passwordConfirm=undefined;
+//     next();
+// });
+// userSchema.pre('save',function(next){
+//     if(!this.isModified('password')||this.isNew) return next();
+//     this.passwordChangedAt=Date.now()-1000;
+//     next();
+// });
 // userSchema.pre(/^find/,function(next){
 //     this.find({active:true});   // this.find({active:{$ne:false}});  // we can also use this in case of some conflict
 //     next();
@@ -79,23 +79,26 @@ userSchema.pre('save',function(next){
 
 
  
-userSchema.methods.correctPassword=async function(candidatePassword,userPassword){
-    return await bcrypt.compare(candidatePassword,userPassword);
-};
-userSchema.methods.changedPasswordAfter=function(JWTTimestamp){
-    if(this.passwordChangedAt){
-        const changedTimestamp=parseInt(this.passwordChangedAt.getTime()/1000,10);
-        //console.log(this.changedTiemstamp,JWTTimestamp);
-        return JWTTimestamp<changedTimestamp;
-    }
-    return false;
-}
-userSchema.methods.createPasswordResetToken=function(){
-    const resetToken=crypto.randomBytes(32).toString('hex');
-    this.passwordResetToken=crypto.createHash('sha256').update(resetToken).digest('hex');
-    this.passwordResetExpires=Date.now()+10*60*1000;
-    console.log({resetToken},this.passwordResetToken);
-    return resetToken;
-}
+// userSchema.methods.correctPassword=async function(candidatePassword,userPassword){
+//     return await bcrypt.compare(candidatePassword,userPassword);
+// };
+
+// userSchema.methods.changedPasswordAfter=function(JWTTimestamp){
+//     if(this.passwordChangedAt){
+//         const changedTimestamp=parseInt(this.passwordChangedAt.getTime()/1000,10);
+//         //console.log(this.changedTiemstamp,JWTTimestamp);
+//         return JWTTimestamp<changedTimestamp;
+//     }
+//     return false;
+// }
+
+// userSchema.methods.createPasswordResetToken=function(){
+//     const resetToken=crypto.randomBytes(32).toString('hex');
+//     this.passwordResetToken=crypto.createHash('sha256').update(resetToken).digest('hex');
+//     this.passwordResetExpires=Date.now()+10*60*1000;
+//     console.log({resetToken},this.passwordResetToken);
+//     return resetToken;
+// }
+
 const User=mongoose.model('User',userSchema);   
 module.exports=User;
