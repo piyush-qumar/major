@@ -39,16 +39,6 @@ const userSchema=new mongoose.Schema({
         minlength:[5,'A user password must have more or equal than 5 characters'],
         select:false
     },
-    passwordConfirm:{
-        type:String,
-        required:[true,'A user must have a password confirmation'],
-        validate:{
-            validator:function(el){
-                return el===this.password;
-            },
-            message:'Passwords are not the same'
-        }
-    },
     passwordChangedAt:Date,
     passwordResetToken:String,
     passwordResetExpires:Date,
