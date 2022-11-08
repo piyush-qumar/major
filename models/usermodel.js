@@ -18,6 +18,14 @@ const userSchema=new mongoose.Schema({
         lowercase:true,
         validate:[validator.isEmail,'Please provide a valid email']
     },
+    regNo:{
+        type:String,
+        required:[true,'A user must have a registration number'],
+        unique:true,
+        trim:true,
+        maxlength:[10,'A user registration number must have less or equal than 10 characters'],
+        minlength:[10,'A user registration number must have more or equal than 10 characters']
+    },
     rollNo:{
         type:String,
         required:[true,'A user must have a roll number'],
@@ -27,9 +35,8 @@ const userSchema=new mongoose.Schema({
         minlength:[9,'A user roll number must have equal to 9 characters']
     },
     role:{
-        //required:[true,'A user must have a role'],
         type:String,
-        //trim:true,
+        trim:true,
         enum:['student','teacher','idcrt','admin','squad'],
         default:'student'
     },
@@ -42,11 +49,7 @@ const userSchema=new mongoose.Schema({
     passwordChangedAt:Date,
     passwordResetToken:String,
     passwordResetExpires:Date,
-    // active:{
-    //     type:Boolean,
-    //     default:true,
-    //     select:false
-    // }
+    
 });
 // userSchema.pre('save',async function(next){
 //     //Only run this function if password was actually modified
@@ -62,10 +65,10 @@ const userSchema=new mongoose.Schema({
 //     this.passwordChangedAt=Date.now()-1000;
 //     next();
 // });
-// userSchema.pre(/^find/,function(next){
-//     this.find({active:true});   // this.find({active:{$ne:false}});  // we can also use this in case of some conflict
-//     next();
-// })
+// // userSchema.pre(/^find/,function(next){
+// //     this.find({active:true});   // this.find({active:{$ne:false}});  // we can also use this in case of some conflict
+// //     next();
+// // })  //deprecated for good
 
 
  
@@ -91,4 +94,11 @@ const userSchema=new mongoose.Schema({
 // }
 
 const User=mongoose.model('User',userSchema);   
+const userexample=new User({
+    name:'Rahul',
+    email:'a@b.in',
+    rollNo:'111111111',
+    password:'12345',
+
+})
 module.exports=User;

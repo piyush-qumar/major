@@ -3,9 +3,9 @@ dotenv.config({path:'./config.env'});
 const app=require("./app")
 const mongoose=require('mongoose');
 
-//const DB=process.env.DATABASE.replace('<PASSWORD>',process.env.DATABASE_PASSWORD);
+const DB=process.env.DATABASE.replace('<PASSWORD>',process.env.DATABASE_PASSWORD);
 //process.env.DATABASE_LOCAL
-mongoose.connect(process.env.DATABASE_LOCAL, {
+mongoose.connect(DB, {
     useNewUrlParser:true,  
     //useCreateIndex: true,
     useUnifiedTopology: true, //to avoid deprecation warning
