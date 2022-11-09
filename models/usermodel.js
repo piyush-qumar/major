@@ -1,6 +1,7 @@
 const mongoose=require('mongoose');
 const crypto=require('crypto');
 const validator=require('validator');
+const {v4 : uuidv4} = require('uuid')
 const bcrypt=require('bcryptjs');
 const userSchema=new mongoose.Schema({
     name:{
@@ -44,6 +45,19 @@ const userSchema=new mongoose.Schema({
         type:String,
         required:[true,'A user must have a password'],
         minlength:[5,'A user password must have more or equal than 5 characters'],
+        select:false
+    },
+    id:{
+        type:String,
+        default:uuidv4(),
+        unique:true,
+        trim:true,
+        maxlength:[36,'A user id must have equal to 36 characters'],
+        minlength:[36,'A user id must have equal to 36 characters']
+    },
+    active:{
+        type:Boolean,
+        default:true,
         select:false
     },
     passwordChangedAt:Date,
@@ -94,11 +108,19 @@ const userSchema=new mongoose.Schema({
 // }
 
 const User=mongoose.model('User',userSchema);   
-const userexample=new User({
-    name:'Rahul',
-    email:'a@b.in',
-    rollNo:'111111111',
-    password:'12345',
-
-})
+const id=uuidv4();
+////////demo user///////////////
+// const userexample=new User({
+//     name:'Rahul',
+//     email:'a@b.in',
+//     regNo:'1901202173',
+//     rollNo:'111111111',
+//     password:'12345',
+// })
+// userexample.save().then(doc=>{
+//     console.log(doc);
+// }).catch(err=>{
+//     console.log(err);
+// });
+////////demo user/////////////
 module.exports=User;

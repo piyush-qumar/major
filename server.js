@@ -5,7 +5,7 @@ const mongoose=require('mongoose');
 
 const DB=process.env.DATABASE.replace('<PASSWORD>',process.env.DATABASE_PASSWORD);
 //process.env.DATABASE_LOCAL
-mongoose.connect(DB, {
+mongoose.connect(process.env.DATABASE_LOCAL, {
     useNewUrlParser:true,  
     //useCreateIndex: true,
     useUnifiedTopology: true, //to avoid deprecation warning
