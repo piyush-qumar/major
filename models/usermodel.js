@@ -108,7 +108,7 @@ const userSchema=new mongoose.Schema({
 // }
 
 const User=mongoose.model('User',userSchema);   
-const id=uuidv4();
+//const id=uuidv4();
 ////////demo user///////////////
 // const userexample=new User({
 //     name:'Rahul',
