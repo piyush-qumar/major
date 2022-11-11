@@ -9,6 +9,7 @@ const hpp = require("hpp");
 const userRouter = require('./routes//userRoutes');
 const subjectRouter = require('./routes///subRoutes');
 const AppError = require('./utils//appError');
+const globalerrorhandler=require('./controllers/errorController');
 const app = express();
 //const userRouter=require("./routes/userRoutes");
 
