@@ -50,5 +50,5 @@ app.use("/api/subjects", subjectRouter);
 app.all("*", (req, res, next) => {
     next(new AppError(`Invalid endpoint`));
 });
-
+app.use(globalerrorhandler)
 module.exports = app;
