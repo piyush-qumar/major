@@ -28,7 +28,7 @@ const senderrorDev=(err,req,res)=>{
         status:err.status,
         error:err,
         message:err.message,
-        stack:err.stack
+        //stack:err.stack       //decomment it when detailed error is to be seen
     });
 }else{
     //rendered website
