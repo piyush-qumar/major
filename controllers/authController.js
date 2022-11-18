@@ -1,4 +1,5 @@
 const { promisify } = require("util");
+const catchAsync=require('./../utils/catchAsync');
 // const crypto=require('crypto');
 // const User=require(".//..//models///userModel");
 // const catchAsync=require(".///../////utils/////catchAsync");
@@ -79,6 +80,7 @@ exports.logout = (req, res) => {
   });
   res.status(200).json({ status: "success" });
 };
+
 exports.protect = catchAsync(async (req, res, next) => {
   //1)Getting token and check if it exists
   let token;
