@@ -1,15 +1,15 @@
 const mongoose = require("mongoose");
 const crypto = require("crypto");
 const validator = require("validator");
-const { v4: uuidv4 } = require("uuid");
+//const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcryptjs");
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, "A user must have a name"],
-    unique: true,
+    //unique: false,
     trim: true,
-    maxlength: [40, "A user name must have less or equal than 40 characters"],
+    //maxlength: [40, "A user name must have less or equal than 40 characters"],
     //minlength:[10,'A user name must have more or equal than 10 characters']
   },
   email: {
@@ -52,9 +52,9 @@ const userSchema = new mongoose.Schema({
     minlength: [5, "A user password must have more or equal than 5 characters"],
     //select: false,
   },
-  id: {
+  fb: {
     type: String,
-    default: uuidv4(),
+    //default: uuidv4(),
     unique: true,
     trim: true,
     // maxlength: [36, "A user id must have equal to 36 characters"],
@@ -68,6 +68,13 @@ const userSchema = new mongoose.Schema({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+});
+userSchema.pre("save", async function(next) {
+  if (!this.isModified("password")) return next();
+  else {
+    this.password = await bcrypt.hash(this.password, 12);
+    next();
+  }
 });
 // userSchema.pre('save',async function(next){
 //     //Only run this function if password was actually modified
