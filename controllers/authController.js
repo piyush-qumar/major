@@ -1,14 +1,12 @@
 const { promisify } = require("util");
-const catchAsync=require('./../utils/catchAsync');
+const catchAsync = require("./../utils/catchAsync");
 // const crypto=require('crypto');
-// const User=require(".//..//models///userModel");
-// const catchAsync=require(".///../////utils/////catchAsync");
-// const jwt=require("jsonwebtoken");
-// const AppError=require(".//..//utils///AppError");
+const jwt=require("jsonwebtoken");
+const errorController=require('./errorController');
 // const Email=require(".///../////utils/////email");
-//const errorController=require('.///errorController')
 const User = require("./../models/userModel");
 const AppError = require("../utils/AppError");
+const { read } = require("fs");
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -40,51 +38,66 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
-  const newUser = await User.create(
-    {
+  const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
-    regNo:req.body.regNo,
-    rollNo:req.body.rollNo,
+    regNo: req.body.regNo,
+    rollNo: req.body.rollNo,
     role: req.body.role,
     password: req.body.password,
-    fb:req.body.fb,
+    fb: req.body.fb,
     active: req.body.active,
     passwordChangedAt: req.body.passwordChangedAt,
     passwordResetToken: req.body.passwordResetToken,
     passwordResetExpires: req.body.passwordResetExpires,
-    
-  }
-  );
+  });
+  const token=jwt.sign({id:newUser._id},process.env.JWT_SECRET,{
+    expiresIn:process.env.JWT_EXPIRES_IN
+  });
   // const token=jwt.sign({id:newUser._id},process.env.JWT_SECRET,{
   //     expiresIn:process.env.JWT_EXPIRES_IN
   //     });
-//   const url = `${req.protocol}://${req.get("host")}/me`;
-//   console.log(url);
-//   await new Email(newUser, url).sendWelcome();
-//   createSendToken(newUser, 201, res);
+  //   const url = `${req.protocol}://${req.get("host")}/me`;
+  //   console.log(url);
+  //   await new Email(newUser, url).sendWelcome();
+  //   createSendToken(newUser, 201, res);
   res.status(201).json({
     status: "success",
+    token,
     data: {
       user: newUser,
     },
-   });
+  });
 });
-exports.login = catchAsync(async (req, res, next) => {
-  const { email, password } = req.body;
-  //1)Check if email and password exist
-  if (!email || !password) {
-    return next(new AppError("Please provide valid email and password", 400));
+exports.login=(req,res,next)=>{
+  const {regNo,password}=req.body;
+  // checking if user regno and password exists or not
+  if(!regNo || !password){
+    return next(new AppError("Please provide email and password",400));
   }
-  const user = await User.findOne({ email }).select("+password");
-  const correct = await user.correctPassword(password, user.password);
-  if (!correct || !user) {
-    //in the if statement we can substitute(!correct)with (await user.correctPassword(password,user.password))
-    return next(new AppError("Incorrect password or email entered", 401));
-  }
-  //console.log(user);
-  createSendToken(user, 200, res);
-});
+  const token=""
+  res.status(200).json({
+    status:"success",
+    token
+  })
+}
+
+// exports.login = catchAsync(async (req, res, next) => {
+//   const { email, password } = req.body;
+//   //1)Check if email and password exist
+//   if (!email || !password) {
+//     return next(new AppError("Please provide valid email and password", 400));
+//   }
+//   const user = await User.findOne({ email }).select("+password");
+//   const correct = await user.correctPassword(password, user.password);
+//   if (!correct || !user) {
+//     //in the if statement we can substitute(!correct)with (await user.correctPassword(password,user.password))
+//     return next(new AppError("Incorrect password or email entered", 401));
+//   }
+//   //console.log(user);
+//   createSendToken(user, 200, res);
+// });
+
 exports.logout = (req, res) => {
   res.cookie("jwt", "loggedout", {
     expires: new Date(Date.now() + 10 * 1000),
