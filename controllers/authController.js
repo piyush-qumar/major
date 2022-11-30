@@ -1,5 +1,6 @@
 const { promisify } = require("util");
 const catchAsync = require("./../utils/catchAsync");
+const sendEmail=require('./../utils/email');
 // const crypto=require('crypto');
 const jwt=require("jsonwebtoken");
 const errorController=require('./errorController');
@@ -88,21 +89,6 @@ exports.login=catchAsync(async(req,res,next)=>{
   })
 });
 
-// exports.login = catchAsync(async (req, res, next) => {
-//   const { email, password } = req.body;
-//   //1)Check if email and password exist
-//   if (!email || !password) {
-//     return next(new AppError("Please provide valid email and password", 400));
-//   }
-//   const user = await User.findOne({ email }).select("+password");
-//   const correct = await user.correctPassword(password, user.password);
-//   if (!correct || !user) {
-//     //in the if statement we can substitute(!correct)with (await user.correctPassword(password,user.password))
-//     return next(new AppError("Incorrect password or email entered", 401));
-//   }
-//   //console.log(user);
-//   createSendToken(user, 200, res);
-// });
 
 exports.logout = (req, res) => {
   res.cookie("jwt", "loggedout", {
@@ -192,12 +178,18 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   const resetToken = user.createPasswordResetToken();
   await user.save({ validateBeforeSave: false });
   //3)Send it to user's email
-  try {
+  // try {
     const resetURL = `${req.protocol}://${req.get(
       "host"
     )}/api/users/resetPassword/${resetToken}`;
 
-    await new Email(user, resetURL).sendPasswordReset();
+    const message=`Forgot your password? Submit a PATCH request with your new password to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
+    try{
+    await sendEmail({
+      email: user.email,
+      subject: "Your password reset token (valid for 10 min)",
+      message,
+    });
     res.status(200).json({
       status: "success",
       message: "Token sent to email",
@@ -211,6 +203,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     );
   }
 });
+
 exports.resetPassword = catchAsync(async (req, res, next) => {
   //1)Get user based on the token
   const hashedToken = crypto
