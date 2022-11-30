@@ -7,11 +7,13 @@ const errorController=require('./errorController');
 const User = require("./../models/userModel");
 const AppError = require("../utils/AppError");
 const { read } = require("fs");
+
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 };
+
 const createSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
   const cookieOptions = {
@@ -47,16 +49,12 @@ exports.signup = catchAsync(async (req, res, next) => {
     password: req.body.password,
     fb: req.body.fb,
     active: req.body.active,
+    year:req.body.year,
     passwordChangedAt: req.body.passwordChangedAt,
     passwordResetToken: req.body.passwordResetToken,
     passwordResetExpires: req.body.passwordResetExpires,
   });
-  const token=jwt.sign({id:newUser._id},process.env.JWT_SECRET,{
-    expiresIn:process.env.JWT_EXPIRES_IN
-  });
-  // const token=jwt.sign({id:newUser._id},process.env.JWT_SECRET,{
-  //     expiresIn:process.env.JWT_EXPIRES_IN
-  //     });
+  const token=signToken(newUser._id);
   //   const url = `${req.protocol}://${req.get("host")}/me`;
   //   console.log(url);
   //   await new Email(newUser, url).sendWelcome();
@@ -69,18 +67,26 @@ exports.signup = catchAsync(async (req, res, next) => {
     },
   });
 });
-exports.login=(req,res,next)=>{
+exports.login=catchAsync(async(req,res,next)=>{
   const {regNo,password}=req.body;
   // checking if user regno and password exists or not
   if(!regNo || !password){
     return next(new AppError("Please provide email and password",400));
   }
-  const token=""
+  // checking if user exists and password is correct
+  const user=await User.findOne({regNo}).select('+password');
+  if(!user|| !(await user.correctPassword(password,user.password)))
+  {
+    return next(new AppError("Incorrect email or password",401));
+  }
+  
+  const token=signToken(user._id);
+
   res.status(200).json({
     status:"success",
     token
   })
-}
+});
 
 // exports.login = catchAsync(async (req, res, next) => {
 //   const { email, password } = req.body;
@@ -106,7 +112,7 @@ exports.logout = (req, res) => {
   res.status(200).json({ status: "success" });
 };
 
-exports.protect = catchAsync(async (req, res, next) => {
+exports.protect=catchAsync(async(req,res,next)=>{
   //1)Getting token and check if it exists
   let token;
   if (
@@ -114,34 +120,29 @@ exports.protect = catchAsync(async (req, res, next) => {
     req.headers.authorization.startsWith("Bearer")
   ) {
     token = req.headers.authorization.split(" ")[1];
-    //console.log(token);
-  } else if (req.cookies.jwt) {
-    token = req.cookies.jwt;
   }
-  if (!token) {
-    return next(new AppError("You are not logged in", 401));
+  console.log(token);
+  if(!token){
+    return next(new AppError("You are not logged in! Please login to get access",401));
   }
   //2)Verification token
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  //console.log(decoded); //id show karega along with iat and exp
+  const decoded=await promisify(jwt.verify)(token,process.env.JWT_SECRET);
+  //console.log(decoded);
   //3)Check if user still exists
-  const currentUser = await User.findById(decoded.id);
-  if (!currentUser) {
-    return next(
-      new AppError("The user belonging to this token does not exist", 401)
-    );
+  const freshUser=await User.findById(decoded.id);
+  if(!freshUser){
+    return next(new AppError("The user belonging to this token does not exist",401));
   }
   //4)Check if user changed password after the token was issued
-  //currentUser.changedPasswordAfter(decoded.iat);
-  //console.log(decoded.iat);
-  if (currentUser.changedPasswordAfter(decoded.iat)) {
-    return next(new AppError("User recently changed password", 401));
+  if(freshUser.changedPasswordAfter(decoded.iat)){
+    return next(new AppError("User recently changed password! Please login again",401));
   }
   //Grant access to protected route
-  req.user = currentUser;
-  res.locals.user = currentUser;
+  req.user=freshUser;
+
   next();
-});
+})
+
 
 //only for rendered pages and no error
 exports.isLoggedIn = async (req, res, next) => {

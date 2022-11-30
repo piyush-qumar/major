@@ -42,14 +42,14 @@ app.use((req, res, next) => {
 
 app.use((req, res, next) => {
   req.time = new Date().toString();
-  //console.log(req.headers);// this is to check the headers
+  console.log(req.headers); // this is to check the headers
   next();
 });
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
 app.use("/api/users", userRouter);
-app.use("/api/subjects", subjectRouter);
+app.use("/api/examsub", subjectRouter);
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
 });

@@ -65,11 +65,16 @@ const userSchema = new mongoose.Schema({
     default: true,
     select: false,
   },
+  year: {
+    type: String,
+    trim: true,
+    enum: ["2019", "2020"],
+  },
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
 });
-userSchema.pre("save", async function(next) {
+userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   else {
     this.password = await bcrypt.hash(this.password, 12);
@@ -98,38 +103,30 @@ userSchema.pre("save", async function(next) {
 // userSchema.methods.correctPassword=async function(candidatePassword,userPassword){
 //     return await bcrypt.compare(candidatePassword,userPassword);
 // };
+//instance method created and is accessible in userSchema only
+userSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
+    //console.log(this.changedTiemstamp,JWTTimestamp);
+    return JWTTimestamp < changedTimestamp;
+  }
+  return false;
+}
 
-// userSchema.methods.changedPasswordAfter=function(JWTTimestamp){
-//     if(this.passwordChangedAt){
-//         const changedTimestamp=parseInt(this.passwordChangedAt.getTime()/1000,10);
-//         //console.log(this.changedTiemstamp,JWTTimestamp);
-//         return JWTTimestamp<changedTimestamp;
-//     }
-//     return false;
-// }
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
 
-// userSchema.methods.createPasswordResetToken=function(){
-//     const resetToken=crypto.randomBytes(32).toString('hex');
-//     this.passwordResetToken=crypto.createHash('sha256').update(resetToken).digest('hex');
-//     this.passwordResetExpires=Date.now()+10*60*1000;
-//     console.log({resetToken},this.passwordResetToken);
-//     return resetToken;
-// }
+  this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+  
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  console.log({
+    resetToken
+  }, this.passwordResetToken);
+  return resetToken;
+}
 
 const User = mongoose.model("User", userSchema);
-//const id=uuidv4();
-////////demo user///////////////
-// const userexample=new User({
-//     name:'Rahul',
-//     email:'a@b.in',
-//     regNo:'1901202173',
-//     rollNo:'111111111',
-//     password:'12345',
-// })
-// userexample.save().then(doc=>{
-//     console.log(doc);
-// }).catch(err=>{
-//     console.log(err);
-// });
-////////demo user/////////////
 module.exports = User;
