@@ -1,7 +1,7 @@
 const { promisify } = require("util");
 const catchAsync = require("./../utils/catchAsync");
 const sendEmail=require('./../utils/email');
-// const crypto=require('crypto');
+const crypto=require('crypto');
 const jwt=require("jsonwebtoken");
 const errorController=require('./errorController');
 // const Email=require(".///../////utils/////email");

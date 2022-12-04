@@ -23,15 +23,15 @@ const sub20Schema=new mongoose.Schema({
         trim:true,
     },
     startTime:{
-        type:Date,
+        type:String,
         required:[true,'A subject must have a start time']
     },
     endTime:{
-        type:Date,
+        type:String,
         required:[true,'A subject must have a end time']
     },
     examDate:{
-        type:Date,
+        type:String,
         required:[true,'A subject must have a exam date']
     },
     examDuration:{
