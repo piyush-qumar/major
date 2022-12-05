@@ -1,0 +1,14 @@
+var pos1=["Galleria","Atrium","Core","Octagon","LHC"];
+  var pos2=["floor 1","floor 2","floor 3","floor 4","floor 5"];
+  var pos3=["room 1","room 2","room 3","room 4","room 5","room 6","room 7","room 8","room 9","room 10"];
+  var seat=["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30"];
+  var pos1index=Math.floor(Math.random()*pos1.length);
+  var pos2index=Math.floor(Math.random()*pos2.length);
+  var pos3index=Math.floor(Math.random()*pos3.length);
+  var seatindex=Math.floor(Math.random()*seat.length);
+  var pos1value=pos1[pos1index];
+  var pos2value=pos2[pos2index];
+  var pos3value=pos3[pos3index];
+  var seatvalue=seat[seatindex];
+  var randomstring=pos1value+" "+pos2value+" "+pos3value+" "+seatvalue;
+  console.log(randomstring);
