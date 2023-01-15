@@ -11,7 +11,7 @@ router
   .post(examSubController.addSubject);
 router
   .route("/:id")
-  .get(examSubController.getSubject)
+ // .get(examSubController.getSubject)
   .patch(examSubController.updateSubject)
   .delete(authController.protect,authController.restrictTo('admin'),examSubController.deleteSubject);
 module.exports = router;
